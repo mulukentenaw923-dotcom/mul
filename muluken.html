@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MAU Student Grade Viewer & GPA</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1470&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color:#0b7d2c;
+            font-size:1em;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: #1f00aa;
+            color: white;
+            padding: 1.5em 1em;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        header .-container {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        /* General img styling, can be overridden by more specific selectors */
+        
+        img {
+            max-width: 100%;
+            /* Ensure images are responsive by default */
+            height: auto;
+            display: block;
+        }
+        /* Logo specific styling */
+        
+        .im img {
+            /* Applied to img tag within a div with class 'im' for the top logo */
+            height: 250px;
+            /* Fixed height for the main logo */
+            width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        header .logo-container h1 {
+            margin: 2;
+            font-size: 2em;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            background: #80007a;
+            margin: 0;
+            padding: 0.9em 0;
+            font-size: 1.5em;
+            flex-wrap: wrap;
+        }
+        
+        nav li {
+            margin: 0 1em;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 0.5em 1.2em;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        
+        nav a:hover,
+        nav a:focus,
+        nav a.active {
+            background: lab(60.59% -63.29 61.43);
+            outline: none;
+        }
+        
+        .content {
+            padding: 2em 1.5em;
+            background: hwb(153 86% 0% / 0.97);
+            margin: 2em auto;
+            width: 1000px;
+            border-radius: 18px;
+            box-shadow: 0 0 20px hsla(249, 18%, 41%, 0.08);
+            transition: box-shadow 0.5s;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        input,
+        button,
+        select {
+            padding: 0.8em;
+            margin: 0.5em 0 1em 0;
+            width: 1000px;
+            max-width: 400px;
+            display: block;
+            border-radius: 6px;
+            border: 1px solid lab(50.32% -31.36 -3.63);
+            box-sizing: content-box;
+            font-size: 2em;
+            transition: border 0.2s, box-shadow 0.2s;
+        }
+        
+        input:focus,
+        select:focus {
+            border-color: hsl(0, 55%, 33%);
+            box-shadow: 0 0 4px #005baa33;
+            outline: none;
+        }
+        
+        button {
+            background: linear-gradient(90deg, #aa0cd1 60%, #9619a7 100%);
+            color: hsl(140, 88%, 48%);
+            border: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            font-size: 2em;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 10px rgba(0, 91, 170, 0.06);
+        }
+        
+        button:hover,
+        button:focus {
+            background: linear-gradient(90deg, #dd940b 60%, #e6af1a 100%);
+            box-shadow: 0 4px 16px rgba(6, 119, 211, 0.13);
+            outline: none;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1em;
+            background: #fff;
+            border-radius: 8px;
+            overflow:  hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        th,
+        td {
+            border: 1px solid #e0e0e0;
+            padding: 0.75em;
+            text-align: left;
+        }
+        
+        th {
+            background-color: lab(84.34% -71.32 80.24);
+            font-weight: bold;
+            color: #3a0ae7;
+        }
+        
+        tr:nth-child(even) td {
+            background-color: #17f7d9;
+        }
+        
+        .status {
+            font-weight: bold;
+            padding: 0.6em 1.2em;
+            margin-top: 1em;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 3em;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        
+        .pass {
+            color: #0b7d2c;
+            background-color: #e6ffe6;
+            border: 1px solid #0b7d2c;
+        }
+        
+        .fail {
+            color: #c0392b;
+            background-color: #ffe6e6;
+            border: 1px solid #c0392b;
+        }
+        #home, #about, #grade-view, #services, #contact {
+      width: 100%;
+      background-size:cover;
+      max-width: 980px;
+      margin: 2em auto;
+  }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.45);
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        .modal-content {
+            background-color: #fefefe;
+            margin: 7% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
+            animation: popIn 0.25s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @keyframes popIn {
+            from {
+                transform: scale(0.93);
+                opacity: 0.7;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .modal-header {
+            padding: 1em 1.5em;
+            background-color: #005baa;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25em;
+            letter-spacing: 0.5px;
+        }
+        
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s;
+            border: none;
+            background: transparent;
+        }
+        
+        .close:hover,
+        .close:focus {
+            color: #fff;
+            outline: none;
+        }
+        
+        .modal-body {
+            padding: 1.5em;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #adminModal .modal-content {
+            max-width: 900px;
+            padding: 0;
+        }
+        
+        #adminModal .modal-body {
+            display: flex;
+            padding: 0;
+        }
+        
+        #adminModal nav {
+            width: 180px;
+            background: #f6f9fc;
+            border-right: 1px solid #e0e0e0;
+            padding: 1em 0;
+        }
+        
+        #adminModal nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        #adminModal nav ul li {
+            margin-bottom: 0.2em;
+        }
+        
+        #adminModal nav ul li a {
+            display: block;
+            padding: 0.7em 1.5em;
+            color: #005baa;
+            text-decoration: none;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+            transition: background 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+        
+        #adminModal nav ul li a.active,
+        #adminModal nav ul li a:hover {
+            background: #e6f0fa;
+            color: #0074d9;
+            border-left: 4px solid #0074d9;
+        }
+        
+        #adminModal #adminContent {
+            flex: 1;
+            padding: 1.5em;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        
+        .error-message {
+            color: #c0392b;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-top: -0.5em;
+            margin-bottom: 0.8em;
+            display: none;
+        }
+        
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 1em;
+        }
+        
+        .password-wrapper input[type="password"],
+        .password-wrapper input[type="text"] {
+            padding-right: 44px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            height: 28px;
+            width: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .toggle-password:focus,
+        .toggle-password:hover {
+            opacity: 1;
+            outline: none;
+        }
+        
+        .toggle-password svg {
+            width: 24px;
+            height: 24px;
+            display: block;
+            fill: #666;
+        }
+        
+        footer {
+            /* Added basic footer styling */
+            text-align: center;
+            padding: 1em;
+            background: #004080;
+            /* Same as nav for consistency */
+            color: white;
+            margin-top: 2em;
+        }
+        
+        @media (max-width: 600px) {
+            nav ul {
+                flex-direction: column;
+            }
+            nav li {
+                margin: 0.5em 0;
+            }
+            header .logo-container h1 {
+                font-size: 1.3em;
+                /* Adjust H1 size on smaller screens */
+            }
+            .content {
+                margin: 1em;
+                padding: 1.5em 1em;
+            }
+            #adminModal .modal-body {
+                flex-direction: column;
+            }
+            #adminModal nav {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+            #adminModal #adminContent {
+                max-height: none;
+                padding-top: 1em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="im" style="background-color: white;">
+        <!-- The 'align' attribute is obsolete for img. Use CSS (margin:auto) for centering. -->
+        <img src= "https://upload.wikimedia.org/wikipedia/en/3/31/Mekdela_Amba_University_logo.jpg" />
+    </div>
+    <header>
+        <div class="logo-container">
+            <h1><B></bold>MEKDELA AMBA UNIVERSITY STUDENT GRADE VIEWER WEB PAGE</bold></h1>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#" class="nav-link active" onclick="navigate(event, 'home')">Home</a></li>
+            <li><a href="#" class="nav-link" onclick="navigate(event, 'grade-view')">Grade Viewer</a></li>
+            <li><a href="#" class="nav-link" onclick="navigate(event, 'about')">About</a></li>
+            <li><a href="#" class="nav-link" onclick="navigate(event, 'services')">Services</a></li>
+            <li><a href="#" class="nav-link" onclick="navigate(event, 'contact')">Contact</a></li>
+            <li><a href="#" class="nav-link" onclick="openLoginModal(); return false;" id="adminNavLink">Admin</a></li>
+        </ul>
+    </nav>
+
+    <section id="home" class="content">
+        <h2>Welcome to Mekdela Amba University</h2>
+        <div style="text-align:center; margin: 2em 0;">
+            <video controls style="max-width: 90%; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+      <source src="Mekdela  Amba university Locks Like in 2022  መቅደላ ዩኒቨርስቲይ ይህን ይህን ይመስላል 2014 (1).mp4 ">
+      Your browser does not support the video tag.
+    </video>
+        <p>
+            Mekdela Amba University (MAU) is a leading public higher education institution in Ethiopia, dedicated to academic excellence, research, and community service. Established to foster innovation and knowledge, MAU offers a wide range of undergraduate and
+            postgraduate programs across various disciplines. The university is committed to nurturing competent graduates who contribute to national development and global progress.
+        </p>
+        <ul>
+            <li><strong>Modern Campus:</strong> MAU boasts state-of-the-art facilities, libraries, laboratories, and a vibrant campus life.</li>
+            <div style="text-align:center; margin: 2em 0; width: 500px;">
+           
+          
+              
+            
+            
+                <img src=" IMG_20250518_133450_639.jpg " alt="MAU Campus" style="width: 500px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+            </div>
+            <li><strong>Quality Education:</strong> Our experienced faculty and diverse academic programs ensure students receive a world-class education.</li>
+            <div style="text-align:center; margin: 2em 0; width:1000px;">
+           
+          
+              
+            
+            
+                <img src=" images (2).jfif" alt="MAU Campus" style="width: 500px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+            </div>
+            <li><strong>Research & Innovation:</strong> The university encourages research that addresses local and global challenges.</li>
+            <div style="text-align:center; margin: 2em 0; width:1000px;">
+           
+          
+              
+            
+            
+                <img src="images (1).jfif " alt="MAU Campus" style="width: 500px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+            </div>
+            <li><strong>Community Engagement:</strong> MAU is dedicated to serving society through outreach, partnerships, and social responsibility initiatives.</li>
+            <div style="text-align:center; margin: 2em 0; width:1000px;">
+           
+          
+              
+            
+            
+                <img src=" image.jfif " alt="MAU Campus" style="width: 500px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+            </div>
+        </ul>
+        <p>
+            Join us at Mekdela Amba University and be part of a dynamic academic community shaping the future of Ethiopia and beyond.
+        </p>
+        <div style="text-align:center; margin: 2em 0; width:1000px;">
+           
+          
+              
+            
+            
+            <img src="b1.jfif " alt="MAU Campus" style="width: 500px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+        </div>
+        
+            <p style="font-size: 0.95em; color: #555; margin-top: 0.5em;"></p>
+        </div>
+    </section>
+
+    <section id="grade-view" class="content hidden">
+        <h2>Student Grade Viewer</h2>
+        <p>Enter your Student ID to view grades, GPA, and academic status:</p>
+        <form onsubmit="return showGrades(event)">
+            <label for="studentId">Student ID:</label>
+            <input type="text" id="studentId" placeholder="e.g. MAU001" pattern="^[A-Za-z]{3,}\d{3,}$" title="Format: 3 letters or more followed by 3 or more numbers (e.g., MAU001, STU123)." required />
+            <button type="submit">View Grades</button>
+        </form>
+        <div id="studentIdError" class="error-message"></div>
+        <div class="grade-display" id="gradeDisplay"></div>
+        <button id="printGradeBtn" style="display:none; margin-top:1em;" onclick="printGrade()">Print Grade Report</button>
+        <!-- Add this button after the print button -->
+        <button id="clearGradeBtn" style="display:none; margin-top:1em;" onclick="clearGrades()">Clear</button>
+       
+    </section>
+
+    <section id="about" class="content hidden">
+        <h2>About the System</h2>
+        
+        <img src="download.jfif" alt="MAU Campus" style="width: 500px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+        
+        <p>This system allows Mekdela Amba University (MAU) students to conveniently check their academic results, including individual course grades, overall Grade Point Average (GPA), and academic standing (pass/fail status), by simply entering their unique
+            student ID.</p>
+            
+            
+            <img src="stu3.jfif" alt="MAU Campus" style="width: 500px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+
+
+            <div style="text-align:center; margin: 2em 0; width:1000px;">
+           
+          <h1>students view grade parctice</h1>
+              
+            
+            
+                <img src="stu4.jfif" alt="MAU Campus" style="width: 500px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+            </div>
+    </section>
+
+    <section id="services" class="content hidden">
+        <h2>Services</h2>
+        <ul>
+            <li>Secure viewing of individual course grades based on Student ID.</li>
+            <li>Automatic calculation and display of Grade Point Average (GPA).</li>
+            <li>Conversion of numerical grades to letter grades (e.g., 4.0 to A+).</li>
+            <li>Clear determination and display of academic status (Passed/Failed).</li>
+            <li>Option to print the displayed grade report.</li>
+            <li>Option to download the grade report as a PDF file.</li>
+            <li>(For Admins) Ability to add new student records, including their grades for predefined courses.</li>
+        </ul>
+        <img src=" https://waltainfo.com/wp-content/uploads/2021/08/q3-14-scaled.jpg" alt="MAU Campus" style="width: 1000px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+        <img src="  https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTd3fTd8WvTUScARS5Hd-LoFG65kqxuxT7czw&s" alt="MAU Campus" style="width: 1000px; border-radius: 10px; height:800px ; box-shadow: 0 2px 12px #0002;">
+    </section>
+
+    <section id="contact" class="content hidden">
+        <h2>Contact Us</h2>
+        <p>If you have any questions or encounter issues with the system, please contact the registrar's office:</p>
+        <p><strong>Email:</strong> registrar@mekdela.edu.et</p>
+        <p><strong>Phone:</strong> +251-11-123-4567</p>
+        <p><strong>Address:</strong> Mekdela Amba University, P.O. Box [Your PO Box], [City], Ethiopia</p>
+        <img src=" https://waltainfo.com/wp-content/uploads/2021/08/q3-14-scaled.jpg" alt="MAU Campus" style="width: 1000px; border-radius: 10px; box-shadow: 0 2px 12px #0002;">
+        <img src="  https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTd3fTd8WvTUScARS5Hd-LoFG65kqxuxT7czw&s" alt="MAU Campus" style="width: 1000px; border-radius: 10px; height:800px ; box-shadow: 0 2px 12px #0002;">
+    </section>
+
+    <footer>
+        <p>© <span id="currentYear"></span> Mekdela Amba University. All rights reserved.</p>
+    </footer>
+
+    <!-- Admin Login Modal -->
+    <div id="loginModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle" tabindex="-1">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="loginTitle">Admin Login</h2>
+                <button class="close" aria-label="Close login modal" onclick="closeLoginModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm" onsubmit="return adminLogin(event)" novalidate>
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required minlength="3" autocomplete="username" />
+                    <label for="password">Password:</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="password" name="password" required minlength="6" autocomplete="current-password" />
+                        <button type="button" class="toggle-password" tabindex="-1" aria-label="Show password" onclick="togglePassword('password', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+          </button>
+                    </div>
+                    <button type="submit">Login</button>
+                </form>
+                <p id="loginError" class="error-message" role="alert" aria-live="assertive">Invalid username or password.</p>
+            </div>
+        </div>
+    </div>
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="adminPanelTitle" tabindex="-1">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="adminPanelTitle">Admin Panel</h2>
+                <button class="close" aria-label="Close admin panel" onclick="closeAdminModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <nav aria-label="Admin panel navigation">
+                    <ul id="adminNav">
+                        <li><a href="#" onclick="showAdminSection('add'); return false;" id="navAdd" class="active admin-nav-link">Add Student</a></li>
+                        <li><a href="#" onclick="showAdminSection('list'); return false;" id="navList" class="admin-nav-link">Student List</a></li>
+                        <li><a href="#" onclick="showAdminSection('password'); return false;" id="navPassword" class="admin-nav-link">Change Password</a></li>
+                    </ul>
+                </nav>
+                <div id="adminContent" tabindex="0" aria-live="polite" style="flex:1; padding-left:1em; overflow-y:auto; max-height:400px;">
+                    <!-- Admin content injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Section Templates -->
+    <div id="adminAddTemplate" style="display:none;">
+        <form id="addStudentForm" onsubmit="return addStudent(event)">
+            <label for="studentIDAdminInput">Student ID:</label>
+            <input type="text" id="studentIDAdminInput" placeholder="e.g. STU011" pattern="^[A-Za-z]{3}\d{3,}$" title="Format: 3 letters  followed by 3 or more numbers." required />
+            <label for="studentNameInput">Student Name:</label>
+            <input type="text" id="studentNameInput" placeholder="Full Name" required minlength="3" />
+            <label>Grades (0.0 - 4.0):</label>
+            <div id="gradesInputs"></div>
+            <button type="submit" style="margin-top: 1em;">Add Student</button>
+        </form>
+        <p id="addStudentMsg" style="display:none; margin-top:1em;"></p>
+    </div>
+
+    <div id="adminListTemplate" style="display:none;">
+        <h3>Student List</h3>
+        <div id="studentListTable"></div>
+    </div>
+
+    <div id="adminPasswordTemplate" style="display:none;">
+        <form id="changePasswordForm" onsubmit="return changeAdminPassword(event)">
+            <label for="currentPassword">Current Password:</label>
+            <div class="password-wrapper">
+                <input type="password" id="currentPassword" required minlength="6" />
+                <button type="button" class="toggle-password" tabindex="-1" aria-label="Show password" onclick="togglePassword('currentPassword', this)">
+        <svg viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+      </button>
+            </div>
+            <label for="newPassword">New Password:</label>
+            <div class="password-wrapper">
+                <input type="password" id="newPassword" required minlength="6" />
+                <button type="button" class="toggle-password" tabindex="-1" aria-label="Show password" onclick="togglePassword('newPassword', this)">
+        <svg viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+      </button>
+            </div>
+            <label for="confirmNewPassword">Confirm New Password:</label>
+            <div class="password-wrapper">
+                <input type="password" id="confirmNewPassword" required minlength="6" />
+                <button type="button" class="toggle-password" tabindex="-1" aria-label="Show password" onclick="togglePassword('confirmNewPassword', this)">
+        <svg viewBox="0 0 24 24"><path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z"/></svg>
+      </button>
+            </div>
+            <button type="submit">Change Password</button>
+        </form>
+        <p id="changePasswordMsg" style="display:none; margin-top:1em;"></p>
+    </div>
+
+    <script>
+        function clearGrades() {
+    document.getElementById('gradeDisplay').innerHTML = '';
+    document.getElementById('printGradeBtn').style.display = 'none';
+    document.getElementById('clearGradeBtn').style.display = 'none';
+}
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        function navigate(event, sectionId) {
+            event.preventDefault();
+            document.querySelectorAll('.content').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(sectionId).classList.remove('hidden');
+            document.querySelectorAll('nav ul li a.nav-link').forEach(link => link.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        const courses = ["Operating System", "DCACN", "COAA", "Algorithm", "IP", "Discrete Mathematics"];
+
+        let studentData = {
+            "MAU001": {
+                name: "Abebe Kebede",
+                grades: [4.0, 3.75, 3.5, 3.25, 3.0, 2.75]
+            },
+            "MAU002": {
+                name: "Mekdes Alemu",
+                grades: [3.75, 4.0, 3.5, 3.0, 3.25, 2.5]
+            },
+
+        };
+
+        const adminCredentials = {
+            username: "admin",
+            password: "password123"
+        };
+
+        function getLetter(grade) {
+            const g = parseFloat(grade.toFixed(2)); // Ensure comparison with 2 decimal places
+            if (g === 4.00) return "A+";
+            if (g >= 3.75) return "A";
+            if (g >= 3.50) return "A-";
+            if (g >= 3.25) return "B+";
+            if (g >= 3.00) return "B";
+            if (g >= 2.75) return "B-";
+            if (g >= 2.50) return "C+";
+            if (g >= 2.25) return "C";
+            if (g >= 2.00) return "C-";
+            if (g >= 1.75) return "D+";
+            if (g >= 1.50) return "D";
+            if (g >= 1.00) return "D-";
+            return "F";
+        }
+
+        function calculateGPA(grades) {
+            if (!grades || grades.length === 0) return 0;
+            const sum = grades.reduce((a, b) => a + b, 0);
+            return sum / grades.length;
+        }
+
+        function getStatus(grades) {
+            const gpa = calculateGPA(grades);
+            const allCoursesPassed = grades.every(g => g >= 1.0);
+            return allCoursesPassed && gpa >= 1.5 ? "Pass" : "Fail";
+        }
+
+        function showGrades(event) {
+            // After setting the grade display content and showing the print button:
+document.getElementById('clearGradeBtn').style.display = 'inline-block';
+            event.preventDefault();
+            const studentIdInput = document.getElementById('studentId');
+            const studentId = studentIdInput.value.trim().toUpperCase();
+            const errorDiv = document.getElementById('studentIdError');
+            const gradeDisplay = document.getElementById('gradeDisplay');
+            const printBtn = document.getElementById('printGradeBtn');
+
+            gradeDisplay.innerHTML = "";
+            printBtn.style.display = "none";
+            errorDiv.style.display = "none";
+
+
+            const idPattern = /^[A-Za-z]{3}\d{3,}$/;
+            if (!idPattern.test(studentId)) {
+                errorDiv.textContent = "Invalid Student ID format. (e.g., MAU123)";
+                errorDiv.style.display = "block";
+                return false;
+            }
+
+            if (!studentData[studentId]) {
+                errorDiv.textContent = `No record found for Student ID: ${studentId}`;
+                errorDiv.style.display = "block";
+                return false;
+            }
+
+            const student = studentData[studentId];
+            let html = `<h3>${student.name} (${studentId})</h3>`;
+            html += `<table><tr><th>Course</th><th>Grade</th><th>Letter</th></tr>`;
+            student.grades.forEach((g, i) => {
+                html += `<tr><td>${courses[i]}</td><td>${g.toFixed(2)}</td><td>${getLetter(g)}</td></tr>`;
+            });
+            html += `</table>`;
+            const gpa = calculateGPA(student.grades);
+            html += `<p style="margin-top:1em;"><b>GPA:</b> ${gpa.toFixed(2)}</p>`;
+            const status = getStatus(student.grades);
+            html += `<span class="status ${status === "Pass" ? "pass" : "fail"}">${status}</span>`;
+
+            gradeDisplay.innerHTML = html;
+            printBtn.style.display = "inline-block";
+            return false;
+        }
+
+        function printGrade() {
+            const gradeDisplayContent = document.getElementById('gradeDisplay').innerHTML;
+            const universityLogoHTML = `<div style="text-align:center; margin-bottom:20px;"><img src="/storage/emulated/0/Download/log.jpg" alt="MAU Logo" style="height:100px; width:auto;"></div>`; // Smaller logo for print
+
+            const printWindow = window.open('', '_blank', 'height=800,width=600');
+
+            printWindow.document.write('<html><head><title>Mekdela Amba University - Grade Report</title>');
+            printWindow.document.write(`
+                <style>
+                    body { 
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                        margin: 25px; 
+                        line-height: 1.5;
+                    }
+                    table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-top: 15px; 
+                        margin-bottom: 15px; 
+                        font-size: 0.9em;
+                    }
+                    th, td { 
+                        border: 1px solid #999; 
+                        padding: 6px 8px; 
+                        text-align: left; 
+                    }
+                    th { 
+                        background-color: #e8e8e8; 
+                        color: #333; 
+                        font-weight: bold;
+                    }
+                    h2, h3 { 
+                        color: #005baa; 
+                        text-align: center; 
+                        margin-bottom: 5px;
+                        margin-top: 0;
+                    }
+                    h2 { font-size: 1.5em; margin-bottom: 10px;}
+                    h3 { font-size: 1.2em; }
+                    /* Grade display specific H3 (student name) */
+                    #gradeDisplayH3 { /* Target this specifically if needed */
+                        text-align: left;
+                        font-size: 1.1em;
+                        margin-top: 20px;
+                        margin-bottom: 10px;
+                        color: #222;
+                    }
+                    p { 
+                        margin-top: 0.8em; 
+                        margin-bottom: 0.8em; 
+                        font-size: 0.95em;
+                    }
+                    .status { 
+                        font-weight: bold; padding: 0.4em 0.9em; margin-top: 1em; 
+                        border-radius: 15px; display: inline-block; font-size: 0.95em;
+                        border: 1px solid;
+                    }
+                    .pass { color: #0b7d2c; background-color: #e6ffe6; border-color: #0b7d2c; }
+                    .fail { color: #c0392b; background-color: #ffe6e6; border-color: #c0392b; }
+
+                    @media print {
+                        body { margin: 15mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; } /* Ensure background colors print */
+                        button { display: none; } /* Hide any buttons in the print view */
+                        h2, h3 { page-break-after: avoid; }
+                        table { page-break-inside: auto; }
+                        tr { page-break-inside: avoid; page-break-after: auto; }
+                    }
+                </style>
+            `);
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(universityLogoHTML); // Add logo at the top
+            printWindow.document.write('<h2>Mekdela Amba University</h2>');
+            printWindow.document.write('<h3>Student Academic Report</h3>');
+
+            // Modify the gradeContent to ensure the H3 has an ID or specific class for styling if needed
+            // For simplicity, if the H3 is the first child of gradeDisplay, it's okay.
+            // Otherwise, you might need to parse gradeDisplayContent to style its H3 specifically.
+            // The current style for `h3` in printWindow is centered. If gradeDisplay's h3 needs to be left:
+            // We can wrap it or specifically target if its structure is consistent.
+            // Let's assume the first H3 in gradeContent is the student name.
+            let styledGradeContent = gradeDisplayContent.replace(/<h3>(.*?)<\/h3>/, '<h3 id="gradeDisplayH3">$1</h3>');
+
+            printWindow.document.write(styledGradeContent);
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+
+            printWindow.onload = function() { // Wait for content to fully load in the new window
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            };
+        }
+
+
+        // Modal functions (login/admin)
+        function openLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('loginForm').reset();
+            setTimeout(() => document.getElementById('username').focus(), 50);
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        function openAdminModal() {
+            document.getElementById('adminModal').style.display = 'block';
+            showAdminSection('add');
+            setTimeout(() => {
+                const firstFocusable = document.querySelector('#adminModal #adminContent input, #adminModal #adminContent button, #adminModal #adminContent [tabindex]:not([tabindex="-1"])');
+                if (firstFocusable) firstFocusable.focus();
+            }, 50);
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+        }
+
+        function adminLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const loginError = document.getElementById('loginError');
+            if (username === adminCredentials.username && password === adminCredentials.password) {
+                loginError.style.display = 'none';
+                closeLoginModal();
+                openAdminModal();
+                return false;
+            } else {
+                loginError.textContent = 'Invalid username or password.';
+                loginError.style.display = 'block';
+                return false;
+            }
+        }
+
+        function showAdminSection(section) {
+            document.querySelectorAll('#adminNav .admin-nav-link').forEach(link => link.classList.remove('active'));
+            const adminContent = document.getElementById('adminContent');
+            let firstFocusableElement = null;
+
+            if (section === 'add') {
+                adminContent.innerHTML = document.getElementById('adminAddTemplate').innerHTML;
+                document.getElementById('navAdd').classList.add('active');
+                const gradesInputs = document.getElementById('gradesInputs');
+                gradesInputs.innerHTML = '';
+                courses.forEach((c, i) => {
+                    gradesInputs.innerHTML += `
+                        <div style="margin-bottom: 0.5em; display: flex; align-items: center;">
+                            <label for="grade${i}" style="flex-basis: 200px; margin-right: 10px;">${c}:</label>
+                            <input type="number" id="grade${i}" min="0" max="4" step="0.01" required placeholder="0.00 - 4.00" style="flex-grow: 1; max-width: 150px;" />
+                        </div>`;
+                });
+                firstFocusableElement = document.getElementById('studentIDAdminInput');
+            } else if (section === 'list') {
+                adminContent.innerHTML = document.getElementById('adminListTemplate').innerHTML;
+                document.getElementById('navList').classList.add('active');
+                let html = `<div style="overflow-x:auto;"><table><thead><tr><th>ID</th><th>Name</th>`;
+                courses.forEach(c => html += `<th>${c.replace(/\s/g, '<br>')}</th>`);
+                html += `<th>GPA</th><th>Status</th></tr></thead><tbody>`;
+                Object.entries(studentData).forEach(([id, stu]) => {
+                    html += `<tr><td>${id}</td><td>${stu.name}</td>`;
+                    stu.grades.forEach(g => html += `<td>${g.toFixed(2)}</td>`);
+                    const gpa = calculateGPA(stu.grades);
+                    const status = getStatus(stu.grades);
+                    html += `<td>${gpa.toFixed(2)}</td><td><span class="status ${status === "Pass" ? "pass" : "fail"}">${status}</span></td></tr>`;
+                });
+                html += `</tbody></table></div>`;
+                document.getElementById('studentListTable').innerHTML = html;
+                firstFocusableElement = document.querySelector('#studentListTable table');
+                if (firstFocusableElement) firstFocusableElement.setAttribute('tabindex', '0'); // Make table focusable for screen readers
+            } else if (section === 'password') {
+                adminContent.innerHTML = document.getElementById('adminPasswordTemplate').innerHTML;
+                document.getElementById('navPassword').classList.add('active');
+                firstFocusableElement = document.getElementById('currentPassword');
+            }
+            if (firstFocusableElement) {
+                setTimeout(() => firstFocusableElement.focus(), 50);
+            }
+        }
+
+
+        function addStudent(event) {
+            event.preventDefault();
+            const idInput = document.getElementById('studentIDAdminInput');
+            const id = idInput.value.trim().toUpperCase();
+            const nameInput = document.getElementById('studentNameInput');
+            const name = nameInput.value.trim();
+            const addStudentMsg = document.getElementById('addStudentMsg');
+            addStudentMsg.style.display = "none";
+
+            if (!id || !name) {
+                addStudentMsg.textContent = "Student ID and Name are required.";
+                addStudentMsg.style.color = "#c0392b";
+                addStudentMsg.style.display = "block";
+                if (!id) idInput.focus();
+                else nameInput.focus();
+                return false;
+            }
+
+            const idPattern = /^[A-Za-z]{3}\d{3,}$/;
+            if (!idPattern.test(id)) {
+                addStudentMsg.textContent = "Invalid Student ID format. (e.g., MAU123)";
+                addStudentMsg.style.color = "#c0392b";
+                addStudentMsg.style.display = "block";
+                idInput.focus();
+                return false;
+            }
+
+
+            const grades = [];
+            for (let i = 0; i < courses.length; i++) {
+                const gradeInput = document.getElementById('grade' + i);
+                const val = parseFloat(gradeInput.value);
+                if (isNaN(val) || val < 0 || val > 4) {
+                    addStudentMsg.textContent = `Invalid grade for ${courses[i]}. Must be between 0.00 and 4.00.`;
+                    addStudentMsg.style.color = "#c0392b";
+                    addStudentMsg.style.display = "block";
+                    gradeInput.focus();
+                    return false;
+                }
+                grades.push(val);
+            }
+
+            if (studentData[id]) {
+                addStudentMsg.textContent = "Student ID already exists!";
+                addStudentMsg.style.color = "#c0392b";
+                addStudentMsg.style.display = "block";
+                idInput.focus();
+                return false;
+            }
+            studentData[id] = {
+                name,
+                grades
+            };
+            addStudentMsg.textContent = "Student added successfully!";
+            addStudentMsg.style.color = "#0b7d2c";
+            addStudentMsg.style.display = "block";
+            document.getElementById('addStudentForm').reset();
+            idInput.focus();
+            return false;
+        }
+
+        function changeAdminPassword(event) {
+            event.preventDefault();
+            const currInput = document.getElementById('currentPassword');
+            const newPInput = document.getElementById('newPassword');
+            const confInput = document.getElementById('confirmNewPassword');
+            const msg = document.getElementById('changePasswordMsg');
+            msg.style.display = "none";
+
+            const curr = currInput.value;
+            const newP = newPInput.value;
+            const conf = confInput.value;
+
+            if (curr !== adminCredentials.password) {
+                msg.textContent = "Current password is incorrect.";
+                msg.style.color = "#c0392b";
+                msg.style.display = "block";
+                currInput.focus();
+                return false;
+            }
+            if (newP.length < 6) {
+                msg.textContent = "New password must be at least 6 characters.";
+                msg.style.color = "#c0392b";
+                msg.style.display = "block";
+                newPInput.focus();
+                return false;
+            }
+            if (newP !== conf) {
+                msg.textContent = "New passwords do not match.";
+                msg.style.color = "#c0392b";
+                msg.style.display = "block";
+                confInput.focus();
+                return false;
+            }
+            adminCredentials.password = newP;
+            msg.textContent = "Password changed successfully!";
+            msg.style.color = "#0b7d2c";
+            msg.style.display = "block";
+            document.getElementById('changePasswordForm').reset();
+            currInput.focus();
+            return false;
+        }
+
+        // Password toggle function
+        const eyeIconSVG = '<path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8a3 3 0 100 6 3 3 0 000-6z"/>';
+        const eyeSlashIconSVG = '<path d="M12 6.99c-4.97 0-9 4.03-9 9H.76L0 15.23l1.41 1.41 1.82-1.82c1.45.73 3.09 1.18 4.77 1.18 7 0 10-7 10-7-.69-1.33-1.54-2.52-2.53-3.51L18.59 4 17.17 2.59l-3.59 3.59A9.333 9.333 0 0012 6.99zm0 10.01c-2.76 0-5-2.24-5-5 0-.77.18-1.5.49-2.14l1.57 1.57c-.01.19-.01.38-.01.57 0 1.66 1.34 3 3 3s3-1.34 3-3c0-.19-.01-.38-.01-.57l1.57-1.57c.31.64.49 1.37.49 2.14 0 2.76-2.24 5-5 5zM2.71 5.71L4.12 4.3 2.3 2.48 1.24 3.54l1.47 1.47zM21.24 15.23L24 12.46h-2.24c0-4.97-4.03-9-9-9-.93 0-1.85.14-2.71.42l-1.42-1.42L7.41 1l-1.41 1.41 18.08 18.08 1.41-1.41-2.84-2.85z"/>';
+
+
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const svgElement = btn.querySelector('svg');
+            if (!input || !svgElement) return;
+
+            if (input.type === "password") {
+                input.type = "text";
+                svgElement.innerHTML = eyeSlashIconSVG;
+                btn.setAttribute('aria-label', 'Hide password');
+            } else {
+                input.type = "password";
+                svgElement.innerHTML = eyeIconSVG;
+                btn.setAttribute('aria-label', 'Show password');
+            }
+        }
+
+        // Close modal on escape key
+        window.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                if (document.getElementById('adminModal').style.display === 'block') {
+                    closeAdminModal();
+                } else if (document.getElementById('loginModal').style.display === 'block') {
+                    closeLoginModal();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
